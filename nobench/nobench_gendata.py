@@ -19,6 +19,7 @@ import optparse
 import random
 import sys
 import string
+import json
 
 sys.path.append("third_party")
 
@@ -290,6 +291,8 @@ def main():
     outfile.close()
     secondary_outfile.close()
 
+    with open('rec_strs.json', 'w') as jsonfd:
+        json.dump(rec_strs, jsonfd)
     print ("Finished generating, recommend using one of " +
            str(rec_strs) + " for text search")
 
