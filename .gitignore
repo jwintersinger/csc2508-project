@@ -1,1 +1,4 @@
 /tmp
+*.pyc
+/argo/parser.out
+/argo/parsetab.py

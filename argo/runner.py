@@ -1,4 +1,4 @@
-#!/usr/bin/env python22
+#!/usr/bin/env python2
 import json
 import sys
 
@@ -8,9 +8,13 @@ import argodb
 import timeit
 import random
 
+class CursorWrapper(psycopg2._psycopg.cursor):
+  def execute(self, *args, **kwargs):
+    print(args)
+    super(CursorWrapper, self).execute(*args, **kwargs)
 
 def get_db():
-  conn = psycopg2.connect("user=postgres dbname=argo")
+  conn = psycopg2.connect("user=postgres dbname=argo", cursor_factory=CursorWrapper)
   dbms = dbms_postgres.PostgresDBMS(conn)
   use_argo_1 = False
   return (conn, argodb.ArgoDB(dbms, use_argo_1))
@@ -96,7 +100,7 @@ class Benchmark:
     self._execute_query('SELECT * FROM %s WHERE dyn1 BETWEEN XXXXX AND YYYYY' % (self._tbl, floor, ceiling))
 
   def q8(self):
-    self._execute_query('SELECT * FROM %s WHERE "%s" = ANY nested_arr' % (self._tbl, self._get_rec_str())
+    self._execute_query('SELECT * FROM %s WHERE "%s" = ANY nested_arr' % (self._tbl, self._get_rec_str()))
 
   def q9(self):
     self._execute_query('SELECT * FROM %s WHERE sparse_XXX = YYYYY' % self._tbl)
