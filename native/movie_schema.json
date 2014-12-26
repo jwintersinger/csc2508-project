@@ -71,6 +71,16 @@
         ]
       },
       {
+        "id": 1,
+        "name": "Michael J. Fox",
+        "birth_date": "1961-09-01",
+        "movies": [
+          2,
+          3,
+          4
+        ]
+      },
+      {
         "id": 3,
         "name": "Jack Nicholson",
         "birth_date": "1961-09-01",
@@ -86,6 +96,21 @@
       "US": "$4.99"
     },
     "reviews": [
+      {
+        "id": 1,
+        "user": {
+          "id": 1,
+          "name": "John Tory",
+          "country": "CA",
+          "recent_purchases": [
+            2,
+            3,
+            4
+          ]
+        },
+        "rating": 5,
+        "text": "Simply breathtaking."
+      },
       {
         "id": 1,
         "user": {
