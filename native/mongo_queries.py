@@ -1,4 +1,5 @@
 import pymongo
+import datetime
 
 def q1(col):
   def _do_movies_share_actors(m1, m2, threshold):
@@ -73,12 +74,22 @@ def q3(col):
   for movie in agg['result']:
     print(movie)
 
-def q4(
+def q4(col):
+  time_threshold = datetime.datetime.now()
+  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
+  strtime = time_threshold.strftime('%Y-%m-%d')
+  movies = col.find({'release_date': {'$gte': strtime}})
+  for movie in movies:
+    print(movie['title'])
 
 def main():
   client = pymongo.MongoClient('localhost', 27017)
   db = client.test
   col = db.lol
+
   q1(col)
+  q2(col)
+  q3(col)
+  q4(col)
 
 main()
