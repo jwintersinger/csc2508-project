@@ -2,6 +2,9 @@ import pymongo
 import datetime
 
 def q1(col):
+  '''
+  What movies share at least one actor?
+  '''
   def _do_movies_share_actors(m1, m2, threshold):
     sorter = lambda a: a['id']
     m1['actors'].sort(key = sorter)
@@ -30,25 +33,39 @@ def q1(col):
     return False
 
   def _add_movies_with_shared_actors(movie):
+    date_comps = movie['release_date'].split('-')
+    year_threshold = int(date_comps[0]) - 5
+    date_threshold = '%s-%s' % (year_threshold, '-'.join(date_comps[1:]))
+
     movie['movies_with_shared_actors'] = []
-    others = col.find({'_id': {'$gt': movie['_id']}})
+    others = col.find({
+      'release_date': {'$lte': date_threshold}
+    })
 
     for other in others:
       if _do_movies_share_actors(movie, other, 1):
         movie['movies_with_shared_actors'].append(other)
     return movie
 
-  movies = map(_add_movies_with_shared_actors, col.find())
+  movies = col.find()
+  movies = map(_add_movies_with_shared_actors, movies)
   movies = [m for m in movies if len(m['movies_with_shared_actors']) > 0]
   for movie in movies:
     print((movie['title'], [m['title'] for m in movie['movies_with_shared_actors']]))
 
 def q2(col):
+  '''
+  What movies are in both the "action" and "adventure" genres?
+  '''
   movies = col.find({'genre': {'$all': ['Action', 'Adventure']}})
   for movie in movies:
     print(movie['title'])
 
 def q3(col):
+  '''
+  What movies have at least half of their reviewers from Canada? Exclude
+  movies with no reviews.
+  '''
   target_country = 'CA'
   target_threshold = 0
   
@@ -75,6 +92,9 @@ def q3(col):
     print(movie)
 
 def q4(col):
+  '''
+  What movies were released in the last year?
+  '''
   time_threshold = datetime.datetime.now()
   time_threshold = time_threshold.replace(year = time_threshold.year - 1)
   strtime = time_threshold.strftime('%Y-%m-%d')
