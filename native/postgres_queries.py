@@ -1,23 +1,25 @@
 #!/usr/bin/env python
 import datetime
+import psycopg2
 
 def q1():
   '''
   What movies share at least one actor?
   '''
   query = '''
-    SELECT m1.data->'title', m2.data->'title'
-    FROM moviesj m1
-    JOIN moviesj m2 ON (m1.data->'id') > (m2.data->'id')
+    SELECT m1.doc->'title', m2.doc->'title'
+    FROM movies m1
+    JOIN movies m2 ON (m1.doc->'id') > (m2.doc->'id')
     WHERE (
       SELECT COUNT(*) FROM (
-        SELECT jsonb_array_elements(m1.data->'actors')
+        SELECT jsonb_array_elements(m1.doc->'actors')
         INTERSECT
-        SELECT jsonb_array_elements(m2.data->'actors')
+        SELECT jsonb_array_elements(m2.doc->'actors')
       ) actors_intersection
     ) >= 1
-    AND ABS((m1.data->>'release_date')::date - (m2.data->>'release_date')::date) > 365*5;
+    AND ABS((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) > 365*5;
   '''
+  return query
 
 def q2():
   '''
@@ -27,6 +29,7 @@ def q2():
     SELECT m.doc->'title' FROM movies m
     WHERE m.doc->'genre' ?& array['Action', 'Adventure'];
   '''
+  return query
 
 def q3():
   '''
@@ -45,6 +48,7 @@ def q3():
     WHERE (desired_reviews->'user'->>'country') = 'CA'
     GROUP BY mid, mtitle, total_reviews;
   '''
+  return query
 
 def q4():
   '''
@@ -57,17 +61,21 @@ def q4():
   query = '''
     SELECT m.doc->'title'
     FROM movies m
-    WHERE m1.doc->'release_date' >= '%s'
+    WHERE m.doc->>'release_date' >= '%s'
   ''' % strtime
+  return query
   
 def main():
-  client = pymongo.MongoClient('localhost', 27017)
-  db = client.test
-  col = db.lol
+  conn = psycopg2.connect("dbname=postgres user=postgres")
+  cur = conn.cursor()
 
-  q1(col)
-  q2(col)
-  q3(col)
-  q4(col)
+  for gen_query in (q1, q2, q3, q4):
+    query = gen_query()
+    cur.execute(query)
+    print(cur.fetchall())
+
+  conn.commit()
+  cur.close()
+  conn.close()
 
 main()

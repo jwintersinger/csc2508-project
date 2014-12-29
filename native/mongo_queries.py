@@ -105,8 +105,8 @@ def q4(col):
 
 def main():
   client = pymongo.MongoClient('localhost', 27017)
-  db = client.test
-  col = db.lol
+  db = client.pants
+  col = db.movies
 
   q1(col)
   q2(col)
