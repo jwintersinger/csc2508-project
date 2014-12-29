@@ -56,8 +56,8 @@ def q4():
   query = '''
     SELECT m.doc->'title'
     FROM movies m
-    WHERE m1.doc->'release_date' >= 
-  '''
+    WHERE m1.doc->'release_date' >= '%s'
+  ''' % strtime
   
 def main():
   client = pymongo.MongoClient('localhost', 27017)
