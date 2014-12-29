@@ -115,7 +115,22 @@
         "id": 1,
         "user": {
           "id": 1,
-          "name": "John Tory",
+          "name": "Barack Obama",
+          "country": "US",
+          "recent_purchases": [
+            2,
+            3,
+            4
+          ]
+        },
+        "rating": 5,
+        "text": "Simply breathtaking."
+      },
+      {
+        "id": 1,
+        "user": {
+          "id": 1,
+          "name": "Grant Fuhr",
           "country": "CA",
           "recent_purchases": [
             2,
