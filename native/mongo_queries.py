@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import pymongo
 import datetime
+import sys
+import timeit
 
 def q1(col):
   '''
@@ -104,13 +106,12 @@ def q4(col):
     print(movie['title'])
 
 def main():
-  client = pymongo.MongoClient('localhost', 27017)
+  client = pymongo.MongoClient('localhost', 27018)
   db = client.pants
   col = db.movies
 
-  q1(col)
-  q2(col)
-  q3(col)
-  q4(col)
+  for query in (q2, q3, q4):
+    timer = timeit.Timer(setup='gc.enable()', stmt=lambda: query(col))
+    print((query, timer.timeit(number=1)), file=sys.stderr)
 
 main()
