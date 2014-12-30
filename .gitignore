@@ -1,4 +1,2 @@
-/tmp
-*.pyc
-/argo/parser.out
-/argo/parsetab.py
+/native/data
+.*.swp
