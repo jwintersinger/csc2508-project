@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import datetime
 import psycopg2
+import sys
+import timeit
 
 def q1():
   '''
@@ -9,7 +11,7 @@ def q1():
   query = '''
     SELECT m1.doc->'title', m2.doc->'title'
     FROM movies m1
-    JOIN movies m2 ON (m1.doc->'id') > (m2.doc->'id')
+    JOIN movies m2 ON ((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) >= 365*5
     WHERE (
       SELECT COUNT(*) FROM (
         SELECT jsonb_array_elements(m1.doc->'actors')
@@ -17,7 +19,6 @@ def q1():
         SELECT jsonb_array_elements(m2.doc->'actors')
       ) actors_intersection
     ) >= 1
-    AND ABS((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) > 365*5;
   '''
   return query
 
@@ -41,12 +42,16 @@ def q3():
       m1.doc->'id' mid,
       m1.doc->'title' mtitle,
       jsonb_array_length(m1.doc->'reviews') as total_reviews,
-      COUNT(desired_reviews.*) as desired_reviews
+      COUNT(desired_reviews.*) as num_desired_reviews
     FROM
       movies m1,
       jsonb_array_elements(m1.doc->'reviews') desired_reviews
-    WHERE (desired_reviews->'user'->>'country') = 'CA'
-    GROUP BY mid, mtitle, total_reviews;
+    WHERE
+      (desired_reviews->'user'->>'country') = 'CA'
+    GROUP BY
+      mid, mtitle, total_reviews
+    HAVING
+      (COUNT(desired_reviews.*)::float / jsonb_array_length(m1.doc->'reviews')) >= 0.5;
   '''
   return query
 
@@ -64,18 +69,21 @@ def q4():
     WHERE m.doc->>'release_date' >= '%s'
   ''' % strtime
   return query
+
+def run_query(conn, query):
+  cur = conn.cursor()
+  cur.execute(query)
+  print(cur.fetchall())
+  conn.commit()
+  cur.close()
   
 def main():
   conn = psycopg2.connect("dbname=postgres user=postgres")
-  cur = conn.cursor()
 
-  for gen_query in (q1, q2, q3, q4):
-    query = gen_query()
-    cur.execute(query)
-    print(cur.fetchall())
+  for gen_query in (q2, q3, q4):
+    timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
+    print((gen_query, timer.timeit(number=1)), file=sys.stderr)
 
-  conn.commit()
-  cur.close()
   conn.close()
 
 main()
