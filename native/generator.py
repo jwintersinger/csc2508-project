@@ -49,12 +49,10 @@ class DocGenerator:
 
   def _generate_actor(self, movie_id):
     self._current_actor_id += 1
-    other_movies = [mid for mid in self._generate_movie_list() if mid != movie_id]
     actor = {
       'id': self._current_actor_id,
       'name': self._generate_name(),
       'birth_date': self._generate_date(),
-      'movies': other_movies,
     }
     self._actors[self._current_actor_id] = actor
     return actor
