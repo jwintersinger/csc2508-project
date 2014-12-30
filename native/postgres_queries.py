@@ -70,6 +70,23 @@ def q4():
   ''' % strtime
   return query
 
+def q5():
+  '''
+  What is the average rating of each movie?
+  '''
+  query = '''
+    SELECT
+      m.doc->'title',
+      AVG((r->>'rating')::int)
+    FROM
+      movies m,
+      jsonb_array_elements(m.doc->'reviews') r
+    GROUP BY
+      m.doc->'id',
+      m.doc->'title'
+  '''
+  return query
+
 def run_query(conn, query):
   cur = conn.cursor()
   cur.execute(query)

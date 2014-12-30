@@ -105,6 +105,23 @@ def q4(col):
   for movie in movies:
     print(movie['title'])
 
+def q5(col):
+  '''
+  What is the average rating of each movie?
+  '''
+  agg = col.aggregate([
+    {'$unwind': '$reviews'},
+    {'$group': {
+      '_id': '$id',
+      'avg_rating': {
+        '$avg': '$reviews.rating'
+      }
+    }},
+    {'$sort': {'_id': 1}},
+  ])
+  for movie in agg['result']:
+    print(movie)
+
 def main():
   client = pymongo.MongoClient('localhost', 27018)
   db = client.pants
