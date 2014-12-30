@@ -1,7 +1,4 @@
 Distribution of data (e.g., movie ratings) doesn't reflect what you'd observe in the real world
-Remaining queries:
-  Average rating per movie
-  Find all movies in which given actor has appeared
 
 Q3:
   While Argo authors used map-reduce, that's no longer possible with switch to V8 -- must use combo of two queries

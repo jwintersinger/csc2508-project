@@ -55,7 +55,7 @@ class DocGenerator:
       'birth_date': self._generate_date(),
     }
     self._actors[self._current_actor_id] = actor
-    return actor
+    return self._current_actor_id
 
   def _generate_country(self):
     if random.random() < 0.4:
@@ -86,47 +86,27 @@ class DocGenerator:
     }
     return review
 
-  def _choose_new_actor_in_range(self, start, end, aid_list):
-    possible_aids = set(range(start, end + 1))
-    used_aids = set(aid_list)
-    if possible_aids <= used_aids:
-      # Impossible to choose new aid -- all are already taken.
-      return None
-
-    while True:
-      aid = random.randrange(start, end + 1)
-      if aid in aid_list:
-        continue
-      else:
-        break
-    return aid
-
   def _generate_actor_list(self, movie_id):
-    actor_list = []
+    aid_list = set()
     num_actors = abs(round(random.gauss(20, 8)))
-    while len(actor_list) < num_actors:
+    while len(aid_list) < num_actors:
       rand = random.random()
-      aid_list = [act['id'] for act in actor_list]
 
       if self._current_actor_id < 6 \
       or rand < 0.65:
         # Ensure at least five actors created before choosing old ones.
         # In 65% of cases, generate new actor.
-        actor = self._generate_actor(movie_id)
+        aid = self._generate_actor(movie_id)
       elif 0.65 <= rand < 0.7:
         # In 5% of cases, choose one of first five actors, each with uniform probability.
-        aid = self._choose_new_actor_in_range(1, 5, aid_list)
-        if aid is None:
-          continue
-        actor = self._actors[aid]
+        aid = random.randrange(1, 6)
       elif 0.7 <= rand < 1:
         # In 30% of cases, choose random actor.
-        aid = self._choose_new_actor_in_range(6, self._current_actor_id, aid_list)
-        if aid is None:
-          continue
-        actor = self._actors[aid]
-      actor_list.append(actor)
-    return actor_list
+        aid = random.randrange(6, self._current_actor_id + 1)
+      aid_list.add(aid)
+
+    aid_list = sorted(list(aid_list))
+    return [self._actors[aid] for aid in aid_list]
 
   def _generate_movie(self):
     self._current_movie_id += 1
