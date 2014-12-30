@@ -122,6 +122,15 @@ def q5(col):
   for movie in agg['result']:
     print(movie)
 
+def q6(col):
+  '''
+  What movies contained given actor?
+  '''
+  desired_actor_id = 3
+  movies = col.find({'actors': {'$elemMatch': {'id': desired_actor_id}}})
+  for movie in movies:
+    print(movie['title'])
+
 def main():
   client = pymongo.MongoClient('localhost', 27018)
   db = client.pants

@@ -28,7 +28,7 @@ def q2():
   '''
   query = '''
     SELECT m.doc->'title' FROM movies m
-    WHERE m.doc->'genre' ?& array['Action', 'Adventure'];
+    WHERE m.doc->'genre' ?& array['Action', 'Adventure']
   '''
   return query
 
@@ -51,7 +51,7 @@ def q3():
     GROUP BY
       mid, mtitle, total_reviews
     HAVING
-      (COUNT(desired_reviews.*)::float / jsonb_array_length(m1.doc->'reviews')) >= 0.5;
+      (COUNT(desired_reviews.*)::float / jsonb_array_length(m1.doc->'reviews')) >= 0.5
   '''
   return query
 
@@ -85,6 +85,24 @@ def q5():
       m.doc->'id',
       m.doc->'title'
   '''
+  return query
+
+def q6():
+  '''
+  What movies contained given actor?
+  '''
+  desired_actor_id = 3
+  query = '''
+    SELECT
+      m.doc->'title'
+    FROM
+      movies m,
+      jsonb_array_elements(m.doc->'actors') a
+    WHERE
+      (a->>'id')::int = %s
+    GROUP BY
+      m.doc->'id'
+  ''' % desired_actor_id
   return query
 
 def run_query(conn, query):
