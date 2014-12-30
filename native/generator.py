@@ -11,7 +11,7 @@ class DocGenerator:
     self._current_movie_id = 0
     self._current_actor_id = 0
     self._current_review_id = 0
-    self._actors = []
+    self._actors = {}
 
   def _generate_str(self, lower_limit, upper_limit):
     length = random.randrange(lower_limit, upper_limit + 1)
@@ -56,10 +56,11 @@ class DocGenerator:
       'birth_date': self._generate_date(),
       'movies': other_movies,
     }
+    self._actors[self._current_actor_id] = actor
     return actor
 
   def _generate_country(self):
-    if random.random() < 0.25:
+    if random.random() < 0.4:
       return 'CA'
     else:
       europe = ['AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT',
@@ -78,16 +79,59 @@ class DocGenerator:
     review = {
       'id': self._current_review_id,
       'rating': rating,
-      'name': self._generate_name(),
-      'country': self._generate_country(),
-      'recent_purchases': self._generate_movie_list(),
       'text': self._generate_review_text(),
+      'user': {
+        'name': self._generate_name(),
+        'country': self._generate_country(),
+        'recent_purchases': self._generate_movie_list(),
+      },
     }
     return review
 
+  def _choose_new_actor_in_range(self, start, end, aid_list):
+    possible_aids = set(range(start, end + 1))
+    used_aids = set(aid_list)
+    if possible_aids <= used_aids:
+      # Impossible to choose new aid -- all are already taken.
+      return None
+
+    while True:
+      aid = random.randrange(start, end + 1)
+      if aid in aid_list:
+        continue
+      else:
+        break
+    return aid
+
+  def _generate_actor_list(self, movie_id):
+    actor_list = []
+    num_actors = abs(round(random.gauss(20, 8)))
+    while len(actor_list) < num_actors:
+      rand = random.random()
+      aid_list = [act['id'] for act in actor_list]
+
+      if self._current_actor_id < 6 \
+      or rand < 0.65:
+        # Ensure at least five actors created before choosing old ones.
+        # In 65% of cases, generate new actor.
+        actor = self._generate_actor(movie_id)
+      elif 0.65 <= rand < 0.7:
+        # In 5% of cases, choose one of first five actors, each with uniform probability.
+        aid = self._choose_new_actor_in_range(1, 5, aid_list)
+        if aid is None:
+          continue
+        actor = self._actors[aid]
+      elif 0.7 <= rand < 1:
+        # In 30% of cases, choose random actor.
+        aid = self._choose_new_actor_in_range(6, self._current_actor_id, aid_list)
+        if aid is None:
+          continue
+        actor = self._actors[aid]
+      actor_list.append(actor)
+    return actor_list
+
   def _generate_movie(self):
     self._current_movie_id += 1
-    num_actors = abs(round(random.gauss(20, 8)))
     num_reviews = abs(round(random.gauss(15, 6)))
 
     doc = {
@@ -95,7 +139,7 @@ class DocGenerator:
       "title": self._generate_str(6, 28),
       "release_date": self._generate_date(),
       "genre": self._generate_genres(),
-      "actors": [self._generate_actor(self._current_movie_id) for _ in range(num_actors)],
+      "actors": self._generate_actor_list(self._current_movie_id),
       "reviews": [self._generate_review() for _ in range(num_reviews)],
     }
     return doc
