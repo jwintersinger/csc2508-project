@@ -133,6 +133,7 @@ def main():
     results = timer.repeat(repeat=10, number=1)
     for result in results:
       print('%s,%s' % (gen_query.__name__, result), file=sys.stderr)
+      sys.stderr.flush()
 
   conn.close()
 

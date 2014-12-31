@@ -32,14 +32,14 @@ function run_postgres_relational {
 }
 
 function main {
-  load_mongo $1
-  load_postgres_json $1
-  load_postgres_relational $1
+  load_postgres_json $1 &
+  load_postgres_relational $1 &
+  load_mongo $1 &
   wait
 
-  run_mongo
-  run_postgres_json
-  run_postgres_relational
+  run_postgres_json &
+  run_postgres_relational &
+  run_mongo &
   wait
 }
 
