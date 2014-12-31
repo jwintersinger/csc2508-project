@@ -58,6 +58,16 @@ def main():
         review['text'],
       ))
 
+  cur.execute('CREATE INDEX ON movies(id)')
+  cur.execute('CREATE INDEX ON movies(title)')
+  cur.execute('CREATE INDEX ON movies(release_date)')
+  cur.execute('CREATE INDEX ON movies_genres(movie_id)')
+  cur.execute('CREATE INDEX ON reviews(movie_id)')
+  cur.execute('CREATE INDEX ON reviews(user_country)')
+  cur.execute('CREATE INDEX ON actors(id)')
+  cur.execute('CREATE INDEX ON movies_actors(movie_id)')
+  cur.execute('CREATE INDEX ON movies_actors(actor_id)')
+
   conn.commit()
   cur.close()
   conn.close()

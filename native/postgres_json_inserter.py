@@ -12,6 +12,7 @@ def main():
   for line in sys.stdin:
     cur.execute('INSERT INTO movies (doc) VALUES (%s)', (line,))
 
+  cur.execute('CREATE INDEX ON movies USING gin (doc)')
   conn.commit()
   cur.close()
   conn.close()
