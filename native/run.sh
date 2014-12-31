@@ -7,10 +7,16 @@ function load_mongo {
   echo "Mongo insert time: $mongo_insert_time" && echo
 }
 
-function load_postgres {
+function load_postgres_json {
   input_file=$1
-  postgres_insert_time=$(time (cat $input_file | ./postgres_inserter.py) 2>&1 1>/dev/null)
-  echo "Postgres insert time: $postgres_insert_time" && echo
+  postgres_insert_time=$(time (cat $input_file | ./postgres_json_inserter.py) 2>&1 1>/dev/null)
+  echo "Postgres JSON insert time: $postgres_insert_time" && echo
+}
+
+function load_postgres_relational {
+  input_file=$1
+  postgres_insert_time=$(time (cat $input_file | ./postgres_relational_inserter.py) 2>&1 1>/dev/null)
+  echo "Postgres relational insert time: $postgres_insert_time" && echo
 }
 
 function run_mongo {
@@ -18,16 +24,25 @@ function run_mongo {
   echo -e "Mongo query time:\n$mongo_query_time\n"
 }
 
-function run_postgres {
-  postgres_query_time=$(./postgres_queries.py 2>&1 1>/dev/null)
-  echo -e "Postgres query time:\n$postgres_query_time\n"
+function run_postgres_json {
+  postgres_query_time=$(./postgres_json_queries.py 2>&1 1>/dev/null)
+  echo -e "Postgres JSON query time:\n$postgres_query_time\n"
+}
+
+function run_postgres_relational {
+  postgres_query_time=$(./postgres_relational_queries.py 2>&1 1>/dev/null)
+  echo -e "Postgres relational query time:\n$postgres_query_time\n"
 }
 
 function main {
-  load_mongo $1
-  load_postgres $1
+  load_mongo $1 &
+  load_postgres_json $1 &
+  load_postgres_relational $1 &
+  wait
+
   run_mongo &
-  run_postgres &
+  run_postgres_json &
+  run_postgres_relational &
   wait
 }
 
