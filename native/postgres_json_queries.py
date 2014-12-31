@@ -6,20 +6,17 @@ import timeit
 
 def q1():
   '''
-  What movies share at least one actor?
+  What movies were released in the last year?
   '''
+  time_threshold = datetime.datetime.now()
+  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
+  strtime = time_threshold.strftime('%Y-%m-%d')
+
   query = '''
-    SELECT m1.doc->'title', m2.doc->'title'
-    FROM movies m1
-    JOIN movies m2 ON ((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) >= 365*5
-    WHERE (
-      SELECT COUNT(*) FROM (
-        SELECT jsonb_array_elements(m1.doc->'actors')
-        INTERSECT
-        SELECT jsonb_array_elements(m2.doc->'actors')
-      ) actors_intersection
-    ) >= 1
-  '''
+    SELECT m.doc->'title'
+    FROM movies m
+    WHERE m.doc->>'release_date' >= '%s'
+  ''' % strtime
   return query
 
 def q2():
@@ -33,6 +30,42 @@ def q2():
   return query
 
 def q3():
+  '''
+  What is the average rating of each movie?
+  '''
+  query = '''
+    SELECT
+      m.doc->'title',
+      AVG((r->>'rating')::int)
+    FROM
+      movies m,
+      jsonb_array_elements(m.doc->'reviews') r
+    GROUP BY
+      m.doc->'id',
+      m.doc->'title'
+  '''
+  return query
+
+def q4():
+  '''
+  What movies contained given actor?
+  '''
+  desired_actor_id = 3
+  query = '''
+    SELECT
+      m.doc->'title'
+    FROM
+      movies m,
+      jsonb_array_elements(m.doc->'actors') a
+    WHERE
+      (a->>'id')::int = %s
+    GROUP BY
+      m.doc->'id',
+      m.doc->'title'
+  ''' % desired_actor_id
+  return query
+
+def q5():
   '''
   What movies have at least half of their reviewers from Canada? Exclude
   movies with no reviews.
@@ -55,55 +88,22 @@ def q3():
   '''
   return query
 
-def q4():
-  '''
-  What movies were released in the last year?
-  '''
-  time_threshold = datetime.datetime.now()
-  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
-  strtime = time_threshold.strftime('%Y-%m-%d')
-
-  query = '''
-    SELECT m.doc->'title'
-    FROM movies m
-    WHERE m.doc->>'release_date' >= '%s'
-  ''' % strtime
-  return query
-
-def q5():
-  '''
-  What is the average rating of each movie?
-  '''
-  query = '''
-    SELECT
-      m.doc->'title',
-      AVG((r->>'rating')::int)
-    FROM
-      movies m,
-      jsonb_array_elements(m.doc->'reviews') r
-    GROUP BY
-      m.doc->'id',
-      m.doc->'title'
-  '''
-  return query
-
 def q6():
   '''
-  What movies contained given actor?
+  What movies share at least one actor?
   '''
-  desired_actor_id = 3
   query = '''
-    SELECT
-      m.doc->'title'
-    FROM
-      movies m,
-      jsonb_array_elements(m.doc->'actors') a
-    WHERE
-      (a->>'id')::int = %s
-    GROUP BY
-      m.doc->'id',
-      m.doc->'title'
-  ''' % desired_actor_id
+    SELECT m1.doc->'title', m2.doc->'title'
+    FROM movies m1
+    JOIN movies m2 ON ((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) >= 365*5
+    WHERE (
+      SELECT COUNT(*) FROM (
+        SELECT jsonb_array_elements(m1.doc->'actors')
+        INTERSECT
+        SELECT jsonb_array_elements(m2.doc->'actors')
+      ) actors_intersection
+    ) >= 1
+  '''
   return query
 
 def run_query(conn, query):

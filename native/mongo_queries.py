@@ -6,6 +6,81 @@ import timeit
 
 def q1(col):
   '''
+  What movies were released in the last year?
+  '''
+  time_threshold = datetime.datetime.now()
+  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
+  strtime = time_threshold.strftime('%Y-%m-%d')
+  movies = col.find({'release_date': {'$gte': strtime}})
+  for movie in movies:
+    print(movie['title'])
+
+def q2(col):
+  '''
+  What movies are in both the "action" and "adventure" genres?
+  '''
+  movies = col.find({'genre': {'$all': ['Action', 'Adventure']}})
+  for movie in movies:
+    print(movie['title'])
+
+def q3(col):
+  '''
+  What is the average rating of each movie?
+  '''
+  agg = col.aggregate([
+    {'$unwind': '$reviews'},
+    {'$group': {
+      '_id': '$id',
+      'avg_rating': {
+        '$avg': '$reviews.rating'
+      }
+    }},
+    {'$sort': {'_id': 1}},
+  ])
+  for movie in agg['result']:
+    print(movie)
+
+def q4(col):
+  '''
+  What movies contained given actor?
+  '''
+  desired_actor_id = 3
+  movies = col.find({'actors': {'$elemMatch': {'id': desired_actor_id}}})
+  for movie in movies:
+    print(movie['title'])
+
+def q5(col):
+  '''
+  What movies have at least half of their reviewers from Canada? Exclude
+  movies with no reviews.
+  '''
+  target_country = 'CA'
+  target_threshold = 0
+
+  agg = col.aggregate([
+    {'$unwind': '$reviews'},
+    {'$project': {
+      '_id': False,
+      'movie_id': '$title',
+      'in_target_country': {
+        '$cond': {
+          'if': {'$eq': ['$reviews.user.country', target_country] },
+          'then': 1,
+          'else': -1
+        }
+      }
+    }},
+    {'$group': {
+      '_id': '$movie_id',
+      'review_country_sum': { '$sum': '$in_target_country' }
+    }},
+    {'$match': {'review_country_sum': {'$gte': target_threshold}}}
+  ])
+  for movie in agg['result']:
+    print(movie)
+
+def q6(col):
+  '''
   What movies share at least one actor?
   '''
   def _do_movies_share_actors(m1, m2, threshold):
@@ -55,81 +130,6 @@ def q1(col):
   movies = [m for m in movies if len(m['movies_with_shared_actors']) > 0]
   for movie in movies:
     print((movie['title'], [m['title'] for m in movie['movies_with_shared_actors']]))
-
-def q2(col):
-  '''
-  What movies are in both the "action" and "adventure" genres?
-  '''
-  movies = col.find({'genre': {'$all': ['Action', 'Adventure']}})
-  for movie in movies:
-    print(movie['title'])
-
-def q3(col):
-  '''
-  What movies have at least half of their reviewers from Canada? Exclude
-  movies with no reviews.
-  '''
-  target_country = 'CA'
-  target_threshold = 0
-  
-  agg = col.aggregate([
-    {'$unwind': '$reviews'},
-    {'$project': {
-      '_id': False,
-      'movie_id': '$title',
-      'in_target_country': {
-        '$cond': {
-          'if': {'$eq': ['$reviews.user.country', target_country] },
-          'then': 1,
-          'else': -1
-        }
-      }
-    }},
-    {'$group': {
-      '_id': '$movie_id',
-      'review_country_sum': { '$sum': '$in_target_country' }
-    }},
-    {'$match': {'review_country_sum': {'$gte': target_threshold}}}
-  ])
-  for movie in agg['result']:
-    print(movie)
-
-def q4(col):
-  '''
-  What movies were released in the last year?
-  '''
-  time_threshold = datetime.datetime.now()
-  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
-  strtime = time_threshold.strftime('%Y-%m-%d')
-  movies = col.find({'release_date': {'$gte': strtime}})
-  for movie in movies:
-    print(movie['title'])
-
-def q5(col):
-  '''
-  What is the average rating of each movie?
-  '''
-  agg = col.aggregate([
-    {'$unwind': '$reviews'},
-    {'$group': {
-      '_id': '$id',
-      'avg_rating': {
-        '$avg': '$reviews.rating'
-      }
-    }},
-    {'$sort': {'_id': 1}},
-  ])
-  for movie in agg['result']:
-    print(movie)
-
-def q6(col):
-  '''
-  What movies contained given actor?
-  '''
-  desired_actor_id = 3
-  movies = col.find({'actors': {'$elemMatch': {'id': desired_actor_id}}})
-  for movie in movies:
-    print(movie['title'])
 
 def main():
   client = pymongo.MongoClient('localhost', 27017)

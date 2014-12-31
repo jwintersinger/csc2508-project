@@ -6,20 +6,17 @@ import timeit
 
 def q1():
   '''
-  What movies share at least one actor?
+  What movies were released in the last year?
   '''
+  time_threshold = datetime.datetime.now()
+  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
+  strtime = time_threshold.strftime('%Y-%m-%d')
+
   query = '''
-    SELECT m1.title, m2.title
-    FROM movies m1
-    JOIN movies m2 ON m1.release_date::date - m2.release_date::date >= 365*5
-    WHERE (
-      SELECT COUNT(*) FROM (
-        SELECT ma1.actor_id FROM movies_actors ma1 WHERE ma1.movie_id = m1.id
-        INTERSECT
-        SELECT ma2.actor_id FROM movies_actors ma2 WHERE ma2.movie_id = m2.id
-      ) actors_intersection
-    ) >= 1
-  '''
+    SELECT m.title
+    FROM movies m
+    WHERE m.release_date >= '%s'
+  ''' % strtime
   return query
 
 def q2():
@@ -46,6 +43,42 @@ def q2():
 
 def q3():
   '''
+  What is the average rating of each movie?
+  '''
+  query = '''
+    SELECT
+      m.title,
+      AVG(r.rating)
+    FROM
+      movies m
+    JOIN
+      reviews r ON r.movie_id = m.id
+    GROUP BY
+      m.id, m.title
+  '''
+  return query
+
+def q4():
+  '''
+  What movies contained given actor?
+  '''
+  desired_actor_id = 3
+  query = '''
+    SELECT
+      m.title
+    FROM
+      movies m,
+      actors a,
+      movies_actors ma
+    WHERE
+      ma.movie_id = m.id AND
+      ma.actor_id = a.id AND
+      ma.actor_id = %s
+  ''' % desired_actor_id
+  return query
+
+def q5():
+  '''
   What movies have at least half of their reviewers from Canada? Exclude
   movies with no reviews.
   '''
@@ -67,55 +100,22 @@ def q3():
   '''
   return query
 
-def q4():
-  '''
-  What movies were released in the last year?
-  '''
-  time_threshold = datetime.datetime.now()
-  time_threshold = time_threshold.replace(year = time_threshold.year - 1)
-  strtime = time_threshold.strftime('%Y-%m-%d')
-
-  query = '''
-    SELECT m.title
-    FROM movies m
-    WHERE m.release_date >= '%s'
-  ''' % strtime
-  return query
-
-def q5():
-  '''
-  What is the average rating of each movie?
-  '''
-  query = '''
-    SELECT
-      m.title,
-      AVG(r.rating)
-    FROM
-      movies m
-    JOIN
-      reviews r ON r.movie_id = m.id
-    GROUP BY
-      m.id, m.title
-  '''
-  return query
-
 def q6():
   '''
-  What movies contained given actor?
+  What movies share at least one actor?
   '''
-  desired_actor_id = 3
   query = '''
-    SELECT
-      m.title
-    FROM
-      movies m,
-      actors a,
-      movies_actors ma
-    WHERE
-      ma.movie_id = m.id AND
-      ma.actor_id = a.id AND
-      ma.actor_id = %s
-  ''' % desired_actor_id
+    SELECT m1.title, m2.title
+    FROM movies m1
+    JOIN movies m2 ON m1.release_date::date - m2.release_date::date >= 365*5
+    WHERE (
+      SELECT COUNT(*) FROM (
+        SELECT ma1.actor_id FROM movies_actors ma1 WHERE ma1.movie_id = m1.id
+        INTERSECT
+        SELECT ma2.actor_id FROM movies_actors ma2 WHERE ma2.movie_id = m2.id
+      ) actors_intersection
+    ) >= 1
+  '''
   return query
 
 def run_query(conn, query):
