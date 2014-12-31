@@ -3,7 +3,7 @@ import psycopg2
 import sys
 
 def main():
-  conn = psycopg2.connect("dbname=postgres user=postgres")
+  conn = psycopg2.connect("dbname=movies_json user=postgres")
   cur = conn.cursor()
 
   cur.execute('DROP TABLE IF EXISTS movies')
