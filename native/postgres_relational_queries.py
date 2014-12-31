@@ -128,7 +128,7 @@ def run_query(conn, query):
 def main():
   conn = psycopg2.connect("dbname=movies_relational user=postgres")
 
-  for gen_query in (q2, q3, q4, q5, q6):
+  for gen_query in (q1, q2, q3, q4, q5):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
     results = timer.repeat(repeat=10, number=1)
     for result in results:

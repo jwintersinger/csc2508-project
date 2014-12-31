@@ -136,7 +136,7 @@ def main():
   db = client.pants
   col = db.movies
 
-  for query in (q2, q3, q4, q5, q6):
+  for query in (q1, q2, q3, q4, q5):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: query(col))
     results = timer.repeat(repeat=10, number=1)
     for result in results:
