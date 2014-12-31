@@ -3,7 +3,7 @@ set -euo pipefail
 
 function load_mongo {
   input_file=$1
-  mongo_insert_time=$(time (cat $input_file | mongoimport --drop --port 27018 --db pants --collection movies) 2>&1 1>/dev/null)
+  mongo_insert_time=$(time (cat $input_file | mongoimport --drop --port 27017 --db pants --collection movies) 2>&1 1>/dev/null)
   echo "Mongo insert time: $mongo_insert_time" && echo
 }
 
@@ -25,10 +25,10 @@ function run_postgres {
 
 function main {
   load_mongo $1
-  #load_postgres $1
-  #run_mongo &
-  #run_postgres &
+  load_postgres $1
+  run_mongo &
+  run_postgres &
   wait
 }
 
-main data/movies_1k.json
+main data/movies_100k.json

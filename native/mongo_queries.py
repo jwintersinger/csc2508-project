@@ -132,12 +132,12 @@ def q6(col):
     print(movie['title'])
 
 def main():
-  client = pymongo.MongoClient('localhost', 27018)
+  client = pymongo.MongoClient('localhost', 27017)
   db = client.pants
   col = db.movies
 
-  for query in (q2, q3, q4):
+  for query in (q2, q3, q4, q5, q6):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: query(col))
-    print((query, timer.timeit(number=1)), file=sys.stderr)
+    print((query, timer.repeat(repeat=10, number=1)), file=sys.stderr)
 
 main()

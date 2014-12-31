@@ -101,7 +101,8 @@ def q6():
     WHERE
       (a->>'id')::int = %s
     GROUP BY
-      m.doc->'id'
+      m.doc->'id',
+      m.doc->'title'
   ''' % desired_actor_id
   return query
 
@@ -115,9 +116,9 @@ def run_query(conn, query):
 def main():
   conn = psycopg2.connect("dbname=postgres user=postgres")
 
-  for gen_query in (q2, q3, q4):
+  for gen_query in (q2, q3, q4, q5, q6):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
-    print((gen_query, timer.timeit(number=1)), file=sys.stderr)
+    print((gen_query, timer.repeat(repeat=10, number=1)), file=sys.stderr)
 
   conn.close()
 
