@@ -138,6 +138,8 @@ def main():
 
   for query in (q2, q3, q4, q5, q6):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: query(col))
-    print((query, timer.repeat(repeat=1, number=1)), file=sys.stderr)
+    results = timer.repeat(repeat=10, number=1)
+    for result in results:
+      print('%s,%s' % (query.__name__, result), file=sys.stderr)
 
 main()

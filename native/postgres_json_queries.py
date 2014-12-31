@@ -118,7 +118,9 @@ def main():
 
   for gen_query in (q2, q3, q4, q5, q6):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
-    print((gen_query, timer.repeat(repeat=1, number=1)), file=sys.stderr)
+    results = timer.repeat(repeat=10, number=1)
+    for result in results:
+      print('%s,%s' % (gen_query.__name__, result), file=sys.stderr)
 
   conn.close()
 

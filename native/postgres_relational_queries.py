@@ -9,14 +9,14 @@ def q1():
   What movies share at least one actor?
   '''
   query = '''
-    SELECT m1.doc->'title', m2.doc->'title'
+    SELECT m1.title, m2.title
     FROM movies m1
-    JOIN movies m2 ON ((m1.doc->>'release_date')::date - (m2.doc->>'release_date')::date) >= 365*5
+    JOIN movies m2 ON m1.release_date::date - m2.release_date::date >= 365*5
     WHERE (
       SELECT COUNT(*) FROM (
-        SELECT jsonb_array_elements(m1.doc->'actors')
+        SELECT ma1.actor_id FROM movies_actors ma1 WHERE ma1.movie_id = m1.id
         INTERSECT
-        SELECT jsonb_array_elements(m2.doc->'actors')
+        SELECT ma2.actor_id FROM movies_actors ma2 WHERE ma2.movie_id = m2.id
       ) actors_intersection
     ) >= 1
   '''
@@ -130,7 +130,9 @@ def main():
 
   for gen_query in (q2, q3, q4, q5, q6):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
-    print((gen_query, timer.repeat(repeat=1, number=1)), file=sys.stderr)
+    results = timer.repeat(repeat=10, number=1)
+    for result in results:
+      print('%s,%s' % (gen_query.__name__, result), file=sys.stderr)
 
   conn.close()
 

@@ -20,18 +20,15 @@ function load_postgres_relational {
 }
 
 function run_mongo {
-  mongo_query_time=$(./mongo_queries.py 2>&1 1>/dev/null)
-  echo -e "Mongo query time:\n$mongo_query_time\n"
+  ./mongo_queries.py 1>/dev/null 2>results.mongo_queries.csv
 }
 
 function run_postgres_json {
-  postgres_query_time=$(./postgres_json_queries.py 2>&1 1>/dev/null)
-  echo -e "Postgres JSON query time:\n$postgres_query_time\n"
+  ./postgres_json_queries.py 1>/dev/null 2>results.postgres_json_queries.csv
 }
 
 function run_postgres_relational {
-  postgres_query_time=$(./postgres_relational_queries.py 2>&1 1>/dev/null)
-  echo -e "Postgres relational query time:\n$postgres_query_time\n"
+  ./postgres_relational_queries.py 1>/dev/null 2>results.postgres_relational_queries.csv
 }
 
 function main {
