@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import math
 import matplotlib
 # Force matplotlib not to use X11 backend, which produces exception when run
@@ -42,6 +43,7 @@ def plot(results):
     'postgres_relational_queries': 'PostgreSQL\nrelational'
   }
 
+  totals = defaultdict(list)
   for query in sorted(results.keys()):
     f, ax = plt.subplots(1, 1, figsize=(6, 5))
     highest_y = 0
@@ -50,6 +52,7 @@ def plot(results):
     x_vals = []
     stdev = []
     y_vals = []
+    combined = []
 
     for set_name in sorted(set_results.keys()):
       times = set_results[set_name]
@@ -57,6 +60,12 @@ def plot(results):
       x_vals.append(set_name)
       y_vals.append(mean_time)
       stdev.append(np.std(times))
+
+      combined.append((set_name, mean_time))
+      totals[set_name].append(mean_time)
+
+    combined = sorted(combined, key = lambda p: p[1])
+    print('%s: %s %s' % (query, ' > '.join(['%s=%s' % c for c in combined]), (combined[1][1] / combined[0][1], combined[2][1] / combined[1][1])))
 
     ind = np.arange(len(x_vals))
     rects = ax.bar(ind + width, y_vals, width, yerr=stdev, color=color, ecolor='black', capsize=100, edgecolor='none')
@@ -74,6 +83,12 @@ def plot(results):
     #plt.title(result_set_name)
     plt.ylabel('Time (seconds)')
     plt.savefig(query + '.png')
+
+  totals = [(t[0], sum(t[1])) for t in totals.items()]
+  totals.sort(key = lambda t: t[1])
+  print()
+  for t in totals:
+    print('%s=%s' % t)
 
 def main():
   results = load_results()
