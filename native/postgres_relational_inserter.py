@@ -6,7 +6,8 @@ import json
 def main():
   inserted_actors = set()
 
-  conn = psycopg2.connect("dbname=movies_relational user=postgres")
+  db_name = sys.argv[1]
+  conn = psycopg2.connect("dbname=%s user=postgres" % db_name)
   cur = conn.cursor()
 
   cur.execute('DROP TABLE IF EXISTS movies')

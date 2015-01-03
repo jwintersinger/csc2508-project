@@ -19,7 +19,6 @@ Results:
   q3: mongo_queries=4.43454007304                       postgres_relational_queries=7.017947307      postgres_json_queries=63.0984412589       (1.5825648638660861,  8.9910109749591243)
   q4: postgres_relational_queries=0.0726058978587       mongo_queries=2.29704796679                  postgres_json_queries=3.37842884019       (31.637209022022287,  1.4707698267695177)
   q5: mongo_queries=5.1462759679                        postgres_json_queries=37.8945201             postgres_relational_queries=48.393649588  (7.3634838738492778,  1.2770619461677941)
-
   insert: mongo_queries=116.1146                        postgres_relational_queries=243.4789         postgres_json_queries=290.7325            (2.0968844572517154,  1.1940767762627478)
 
 Totals (without insert or Q6):
@@ -45,6 +44,12 @@ Three classes:
   Q6
   Insert
 
+Background:
+  Argo lacked the expressive power necessary to express my desired queries
+
 Conclusion:
   All three systems are suitable for OLAP -- of first five queries, Q3 is slowest -- slowest (PJ) takes maximum of 63 s, which is 14x slower than fastest system (Mongo)
   PR is generally fastest system
+  Mongo was fastest, oddly for the two slowest queries, and in second place for the other three
+    Significant Mongo edge for Q1 and Q4 (77x, 7.3x); much more meager for Q2 and Q4
+    Postgres-JSON's numbers are uniformly poor

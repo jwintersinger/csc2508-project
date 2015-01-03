@@ -133,7 +133,8 @@ def q6(col):
 
 def main():
   client = pymongo.MongoClient('localhost', 27017)
-  db = client.pants
+  db_name = sys.argv[1]
+  db = client[db_name]
   col = db.movies
 
   for query in (q1, q2, q3, q4, q5):
