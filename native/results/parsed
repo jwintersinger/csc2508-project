@@ -1,0 +1,11 @@
+insert: mongo_queries=55.5 > postgres_relational_queries=354 > postgres_json_queries=405 (6.38, 1.14)
+q1: postgres_relational_queries=0.00219 > mongo_queries=0.147 > postgres_json_queries=2.32 (67.4, 15.8)
+q2: postgres_relational_queries=0.0944 > mongo_queries=0.126 > postgres_json_queries=2.4 (1.33, 19.1)
+q3: mongo_queries=3.26 > postgres_relational_queries=10.2 > postgres_json_queries=92.8 (3.11, 9.14)
+q4: postgres_relational_queries=0.0687 > mongo_queries=2.41 > postgres_json_queries=4.43 (35.1, 1.84)
+q5: mongo_queries=3.93 > postgres_json_queries=54.2 > postgres_relational_queries=89 (13.8, 1.64)
+q6: postgres_relational_queries=9.25 > postgres_json_queries=73.7 > mongo_queries=99.9 (7.97, 1.36)
+
+mongo_queries=165.295406208
+postgres_relational_queries=462.795847597
+postgres_json_queries=634.837032729
