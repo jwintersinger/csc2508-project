@@ -132,12 +132,14 @@ def q6(col):
     print((movie['title'], [m['title'] for m in movie['movies_with_shared_actors']]))
 
 def main():
-  client = pymongo.MongoClient('localhost', 27017)
-  db_name = sys.argv[1]
+  db_name, mongo_port = sys.argv[1], int(sys.argv[2])
+
+  client = pymongo.MongoClient('localhost', mongo_port)
   db = client[db_name]
   col = db.movies
 
   for query in (q1, q2, q3, q4, q5):
+  #for query in (q6,):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: query(col))
     results = timer.repeat(repeat=10, number=1)
     for result in results:

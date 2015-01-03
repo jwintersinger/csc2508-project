@@ -117,7 +117,8 @@ def main():
   db_name = sys.argv[1]
   conn = psycopg2.connect("dbname=%s user=postgres" % db_name)
 
-  for gen_query in (q1, q2, q3, q4, q5):
+  #for gen_query in (q1, q2, q3, q4, q5):
+  for gen_query in (q6,):
     timer = timeit.Timer(setup='gc.enable()', stmt=lambda: run_query(conn, gen_query()))
     results = timer.repeat(repeat=10, number=1)
     for result in results:

@@ -1,2 +1,2 @@
 To run:
-    ./run.sh | ./proc_insert_times.py
+    rm results.*.csv; ./run.sh > /tmp/insert-results; cat /tmp/insert-results | ./proc_insert_times.py

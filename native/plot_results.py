@@ -65,7 +65,7 @@ def plot(results):
       totals[set_name].append(mean_time)
 
     combined = sorted(combined, key = lambda p: p[1])
-    print('%s: %s %s' % (query, ' > '.join(['%s=%s' % c for c in combined]), (combined[1][1] / combined[0][1], combined[2][1] / combined[1][1])))
+    print('%s: %s (%.3g, %.3g)' % (query, ' > '.join(['%s=%.3g' % c for c in combined]), combined[1][1] / combined[0][1], combined[2][1] / combined[1][1]))
 
     ind = np.arange(len(x_vals))
     rects = ax.bar(ind + width, y_vals, width, yerr=stdev, color=color, ecolor='black', capsize=100, edgecolor='none')
