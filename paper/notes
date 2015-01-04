@@ -1,5 +1,8 @@
+Show example doc & queries
+
 Introduction
 Background
+  Talk about map-reduce and aggregation as alternatives MGDB
 Methods
 Results & Discussion
 Conclusion & future work
@@ -13,18 +16,18 @@ Only queries that take > 4 s on slowest:
   Q3 (Mongo still under 5 s)
   Q5 (Mongo ~5 s)
 
-Results:
-  q1: postgres_relational_queries=0.00232808347791      mongo_queries=0.180423054309                 postgres_json_queries=1.98368090345       (77.498533029522903,  10.994608815637593)
-  q2: postgres_relational_queries=0.0949875869788       mongo_queries=0.157480656798                 postgres_json_queries=1.91000395142       (1.6579077520214009,  12.128498764611567)
-  q3: mongo_queries=4.43454007304                       postgres_relational_queries=7.017947307      postgres_json_queries=63.0984412589       (1.5825648638660861,  8.9910109749591243)
-  q4: postgres_relational_queries=0.0726058978587       mongo_queries=2.29704796679                  postgres_json_queries=3.37842884019       (31.637209022022287,  1.4707698267695177)
-  q5: mongo_queries=5.1462759679                        postgres_json_queries=37.8945201             postgres_relational_queries=48.393649588  (7.3634838738492778,  1.2770619461677941)
-  insert: mongo_queries=116.1146                        postgres_relational_queries=243.4789         postgres_json_queries=290.7325            (2.0968844572517154,  1.1940767762627478)
+Alternatives considered:
+  Argo
+    Insufficiently rich to exprses queries
+  Oracle
+    No freely available test versoin that supports JSON storage available
+  Toro
+    Failed on everything except Q1, Q2, insert
 
-Totals (without insert or Q6):
-  mongo_queries=12.2157677188
-  postgres_relational_queries=55.5815184633
-  postgres_json_queries=108.265075054
+Can partition queries into two sets
+  Q1, Q2, Q4: fast
+  Q3, Q5, Q6: slow
+
 
 Queries:
   q1: What movies were released in the last year?
@@ -48,8 +51,34 @@ Background:
   Argo lacked the expressive power necessary to express my desired queries
 
 Conclusion:
-  All three systems are suitable for OLAP -- of first five queries, Q3 is slowest -- slowest (PJ) takes maximum of 63 s, which is 14x slower than fastest system (Mongo)
+  All three systems are suitable for OLAP
+    All three are rich enough (unlike Argo) and mature enough (unlike Toro) to express complex queries on complex documents
+    PGSJ is uniformly poor performer -- for first four queries, pay penalties of 1065x, 25x, 28x, 65x relative to fastest system
+      Inserts pay penalty of 7x
+
+  Insert times slower in Postgres due to less efficient index generation
+    Exlucding insert times, performance of Mongo vs. PGSR almost same on Q1-Q6Q (109.0 s vs. 109.5 s)
+
   PR is generally fastest system
   Mongo was fastest, oddly for the two slowest queries, and in second place for the other three
     Significant Mongo edge for Q1 and Q4 (77x, 7.3x); much more meager for Q2 and Q4
     Postgres-JSON's numbers are uniformly poor
+
+  Good performance in PGSR does not guarantee the same in PGSJ, despite use of efficient indices
+
+
+
+
+
+Results: (from OS X -- no longer accurate)
+  q1: postgres_relational_queries=0.00232808347791      mongo_queries=0.180423054309                 postgres_json_queries=1.98368090345       (77.498533029522903,  10.994608815637593)
+  q2: postgres_relational_queries=0.0949875869788       mongo_queries=0.157480656798                 postgres_json_queries=1.91000395142       (1.6579077520214009,  12.128498764611567)
+  q3: mongo_queries=4.43454007304                       postgres_relational_queries=7.017947307      postgres_json_queries=63.0984412589       (1.5825648638660861,  8.9910109749591243)
+  q4: postgres_relational_queries=0.0726058978587       mongo_queries=2.29704796679                  postgres_json_queries=3.37842884019       (31.637209022022287,  1.4707698267695177)
+  q5: mongo_queries=5.1462759679                        postgres_json_queries=37.8945201             postgres_relational_queries=48.393649588  (7.3634838738492778,  1.2770619461677941)
+  insert: mongo_queries=116.1146                        postgres_relational_queries=243.4789         postgres_json_queries=290.7325            (2.0968844572517154,  1.1940767762627478)
+
+  Totals (without insert or Q6):
+    mongo_queries=12.2157677188
+    postgres_relational_queries=55.5815184633
+    postgres_json_queries=108.265075054

@@ -50,10 +50,10 @@ function run_postgres_relational {
 }
 
 function insert_records {
-  #load_postgres_json $1
-  #load_postgres_relational $1
-  #load_mongo $1 $mongo_port Mongo
-  load_mongo $1 $toro_port Toro
+  load_postgres_json $1 &
+  load_postgres_relational $1 &
+  load_mongo $1 $mongo_port Mongo &
+  #load_mongo $1 $toro_port Toro
   wait
 }
 
@@ -68,7 +68,7 @@ function benchmark_select {
   #run_postgres_json
   #run_postgres_relational
   #run_mongo $mongo_port results.mongo_queries.csv
-  run_mongo $toro_port results.toro_queries.csv
+  #run_mongo $toro_port results.toro_queries.csv
   wait
 }
 
@@ -77,4 +77,4 @@ function main {
   benchmark_select $1
 }
 
-main data/movies_1k.json
+main data/movies_100k.json
