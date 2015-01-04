@@ -102,7 +102,7 @@ def q5():
 
 def q6():
   '''
-  What movies share at least one actor?
+  What movies released at least five years apart share at least one actor?
   '''
   query = '''
     SELECT m1.title, m2.title

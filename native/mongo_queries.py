@@ -81,7 +81,7 @@ def q5(col):
 
 def q6(col):
   '''
-  What movies share at least one actor?
+  What movies released at least five years apart share at least one actor?
   '''
   def _do_movies_share_actors(m1, m2, threshold):
     sorter = lambda a: a['id']
