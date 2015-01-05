@@ -73,8 +73,8 @@ function benchmark_select {
 }
 
 function main {
-  benchmark_insert $1
-  #benchmark_select $1
+  #benchmark_insert $1
+  benchmark_select $1
 }
 
 main data/movies_100k.json
