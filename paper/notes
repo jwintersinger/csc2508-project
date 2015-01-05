@@ -1,8 +1,46 @@
+Abstract:
+  JSON is increasly used not only as a data transfer format, but as a data storage format as well
+    With more JSON being stored, database users hope to execute complex OLAP queries without first converting their stored data to a relational structure or normalizing it
+  This study explores whether it is possible to express complex queries on intricate JSON documents, and the performance implications of doing so
+    It examines several systems, including PostgreSQL's binary JSON format, MongoDB, and a traditional normalized relational Postgres schema
+  Finds that JSON-based systems are competitive, but that performance varies dramatically from queyr to query
+
 Show example doc & queries
 
 Introduction
 Background
-  Talk about map-reduce and aggregation as alternatives MGDB
+  JSON avoids object-relational impedence mismatch [Argo]
+    Schemaless nature is attractive, as it no longer requires up-front schema design, and makes schema evolution easy
+    Thus, data exchange format, input to DB, and result from DB can all be JSON
+
+  Goal of this project:
+    Understand whether it's possible to efficiently query JSON documents using complex queries, without having to decompose and normalize the data
+
+    JSON documents thus designed (CL1) are complex and partially denormalized, featuring cast, reviews, and other information
+      Models scenario in which external data source serves this JSON document as a whole, listing all known informatoin about movie
+      Mirrors sources like:
+        The Movie Database: http://docs.themoviedb.apiary.io/#reference/movies/movieid/get
+        Rotten Tomatoes API: http://developer.rottentomatoes.com/docs/json/v10/Movie_Info
+    This reflects use case of JSON in the wild -- store large documents with complex nested substructure
+      Better reflects use cae than queries and documents used in Argo
+
+  Postgres introduced initial support in 9.3, extended it with jsonb in 9.4
+    Mirror the storage/query/index principles outlined for Oracle's scheme
+      Storage: don't shred documents to store them relationally -- store natively
+        Allow querying common attributes, despite lack of schema
+      Qutery principle: use SQL, extended with JSON-specific operators implementing means of navigating & querying JSON docs
+      Index principles: use JSON inverted index to support efficient querying
+
+  As with Oracle,t his brings advantage of easy integration into existing environments
+    Easier to combine data from multiple sources
+
+  Other systems considered:
+    Argo, but not rich enough
+    Oracle, but no free version
+    ToroDB is new system storing JSON data in Postgres using relational method
+      Notably, it speaks the MongoDB wire protocol, and so promises easy transition
+      Only two of my six queries succeeded, however
+
 Methods
 Results & Discussion
 Conclusion & future work
@@ -47,6 +85,10 @@ Three classes:
   Q6
   Insert
 
+Future work: extend Argo -- would it perform well with richer query language?
+  Mongo only pulled ahead for massive data sets -- what is threshold for more complex docs?
+Make Toro better
+
 Background:
   Argo lacked the expressive power necessary to express my desired queries
 
@@ -65,6 +107,23 @@ Conclusion:
     Postgres-JSON's numbers are uniformly poor
 
   Good performance in PGSR does not guarantee the same in PGSJ, despite use of efficient indices
+  MGDB may be faster for aggreation
+
+Conclusion:
+  Mongo and Postgres both have sufficient expressive power to represnet complex queries on JSON
+    This is despite offering substantially different computational models -- Postgres is quite similar to the traditional relational model, while Mongo allows moderately complex queries to be expressed via aggregation framework, but requires ad hoc procedural code to be written for more compelx yet
+
+  PGSJ is slow, but relatively immature
+    Mongo is fast enough to be competitive with relational systems
+    Performance differs on query-by-query basis -- so, you ust benchmark for your particular workflow
+  PGSJ may evolve to be faster, which would bring advantage of not needing separate system
+    Interesting would be extending Argo -- given richer query language, maybe its practice of shredding JSON would be beneficial, at least for smaller sets of documents as per its paper
+    Equally interesting would be extending Toro to support full range of Mongo queries -- authors show it being significantly faster than Mongo, with easy migration for existing Mongo apps
+
+  Ultimately, issuing complex queries on denormalized JSON docs is realistic
+    These can be stored directly from producers, without first shredding them into relational systems
+    PGSJ and Oracle show traditional DBMSes taking on JSON roles, replacing specialized stores like Mongo and eliminating need for middleware such as Argo or Toro
+    So, relational DBMSes will likely continue evolving to support changes in storage models -- amazingly versatile systems
 
 
 
